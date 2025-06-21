@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
-import { IBook } from "./book.interface";
+import { IBook } from "../interfaces/book.interface";
+import { timeStamp } from "console";
 
 const bookSchema = new Schema<IBook>({
     title: {
@@ -41,7 +42,11 @@ const bookSchema = new Schema<IBook>({
         type: Boolean,
         default: true,
     },
+
+}, {
+    timestamps: true,
+    versionKey: false
 })
 
-const Book = model<IBook>("Book",bookSchema);
+const Book = model<IBook>("Book", bookSchema);
 export default Book;

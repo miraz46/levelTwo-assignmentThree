@@ -1,5 +1,5 @@
-import Book from "./book.model";
-const addBook = async (req, res) => {
+import Book from "../models/book.model";
+const addBook = async (req :Request, res:Response) => {
     const body = req.body;
     const book = await Book.create(body);
 
