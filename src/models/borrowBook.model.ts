@@ -1,15 +1,16 @@
 import { model, Schema } from "mongoose";
 import { IBorrowBook } from "../interfaces/borrowBook.interface";
+import validator from 'validator';
 
-const bookSchema = new Schema<IBorrowBook>({
+const borrowBookSchema = new Schema<IBorrowBook>({
     book: {
         type: Schema.Types.ObjectId,
-        ref: 'Book', // 🔁 Reference to Book model
-        required: [true, 'Book ID is required'],
+        ref: 'Book',
+        required: true
     },
     quantity: {
         type: Number,
-        required: [true, 'Quantity is required'],
+        required: true,
         min: [1, 'Quantity must be at least 1'],
         validate: {
             validator: Number.isInteger,
@@ -18,7 +19,7 @@ const bookSchema = new Schema<IBorrowBook>({
     },
     dueDate: {
         type: Date,
-        required: [true, 'Due date is required'],
+        required: true
     },
 },
     {
@@ -26,5 +27,5 @@ const bookSchema = new Schema<IBorrowBook>({
         versionKey: false,
     })
 
-const Book = model<IBorrowBook>("Book", bookSchema);
-export default Book;
+const BorrowBook = model<IBorrowBook>("BorrowBook", borrowBookSchema);
+export default BorrowBook;

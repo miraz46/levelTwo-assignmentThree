@@ -1,27 +1,43 @@
-import express,{Request,Response } from "express";
-import Book from "../models/book.model";
-
-
+import express, { Request, Response } from "express";
+import BorrowBook from "../models/borrowBook.model";
+import { z } from "zod";
 
 export const borrowBookRoutes = express.Router();
 
-// Create New Borrow Book
-borrowBookRoutes.post('/', async (req, res) => {
-    const body = req.body;
-    const bookCreated = await Book.create(body);
+const createBorrowBookZodSchema = z.object(
+    {
+        book: z.string(),
+        quantity: z.number().int().min(1, { message: "Quantity must be at least 1" }),
+        dueDate: z.coerce.date()
+    }
+)
 
-    res.status(201).json({
-        success: true,
-        message: "Book created successfully",
-        data: bookCreated
-    })
+// Create New Borrow Book
+borrowBookRoutes.post('/', async (req: Request, res: Response) => {
+    try {
+        const body = await createBorrowBookZodSchema.parseAsync(req.body)
+        const bookCreated = await BorrowBook.create(body);
+
+        res.status(201).json({
+            success: true,
+            message: "Book borrowed successfully",
+            data: bookCreated
+        })
+    } catch (error: any) {
+        console.log(error);
+        res.status(400).json({
+            success: false,
+            message: error.message,
+            error
+        })
+    }
 })
 // Get All Books
 borrowBookRoutes.get('/', async (req, res) => {
-    const books = await Book.find();
+    const books = await BorrowBook.find();
     res.status(200).json({
         success: true,
-        message: "Books fetched successfully",
+        message: "Borrowed books summary retrieved successfully",
         data: books
     })
 })
