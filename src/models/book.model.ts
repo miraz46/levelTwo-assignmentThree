@@ -1,6 +1,5 @@
 import { model, Schema } from "mongoose";
 import { IBook } from "../interfaces/book.interface";
-import { timeStamp } from "console";
 
 const bookSchema = new Schema<IBook>({
     title: {
