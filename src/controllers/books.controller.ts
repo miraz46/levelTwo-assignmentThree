@@ -21,8 +21,6 @@ const createBookZodSchema = z.object(
 bookRoutes.post('/', async (req: Request, res: Response) => {
     try {
         const body = await createBookZodSchema.parseAsync(req.body)
-        console.log(body, "ZOD BODY");
-
         const bookCreated = await Book.create(body);
 
         res.status(201).json({
@@ -75,8 +73,8 @@ bookRoutes.get('/:bookId', async (req: Request, res: Response) => {
 // Update Single Book
 bookRoutes.patch('/:bookId', async (req: Request, res: Response) => {
     const bookId = req.params.bookId;
-    const updatedBook = await createBookZodSchema.parseAsync(req.body)
-    const book = await Book.findByIdAndUpdate(bookId, updatedBook, { new: true });
+    const updatedBook = req.body;
+    const book = await Book.findByIdAndUpdate(bookId, updatedBook, {new: true});
     console.log(book);
 
     res.status(200).json({

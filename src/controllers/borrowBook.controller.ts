@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import BorrowBook from "../models/borrowBook.model";
 import { z } from "zod";
+import Book from "../models/book.model";
 
 export const borrowBookRoutes = express.Router();
 
@@ -15,7 +16,9 @@ const createBorrowBookZodSchema = z.object(
 // Create New Borrow Book
 borrowBookRoutes.post('/', async (req: Request, res: Response) => {
     try {
-        const body = await createBorrowBookZodSchema.parseAsync(req.body)
+        const body = await createBorrowBookZodSchema.parseAsync(req.body);
+
+        await Book.borrowBook(body.book, body.quantity, body.dueDate);
         const bookCreated = await BorrowBook.create(body);
 
         res.status(201).json({
@@ -32,13 +35,51 @@ borrowBookRoutes.post('/', async (req: Request, res: Response) => {
         })
     }
 })
-// Get All Books
-borrowBookRoutes.get('/', async (req, res) => {
-    const books = await BorrowBook.find();
-    res.status(200).json({
-        success: true,
-        message: "Borrowed books summary retrieved successfully",
-        data: books
-    })
-})
 
+// Get books using aggregation pipeline
+borrowBookRoutes.get('/', async (req, res) => {
+  try {
+    const bookCollection = await BorrowBook.aggregate([
+      {
+        $group: {
+          _id: "$book",
+          totalQuantity: { $sum: "$quantity" }
+        }
+      },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "_id",
+          as: "bookInfo"
+        }
+      },
+      {
+        $unwind: "$bookInfo"
+      },
+      {
+        $project: {
+          _id: 0,
+          book: {
+            title: "$bookInfo.title",
+            isbn: "$bookInfo.isbn"
+          },
+          totalQuantity: 1
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Borrowed books summary retrieved successfully",
+      data: bookCollection
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      success: false,
+      message: "Failed to get borrowed books",
+      error
+    });
+  }
+});
