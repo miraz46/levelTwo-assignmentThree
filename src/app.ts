@@ -20,7 +20,7 @@ app.get('/', (req: Request, res: Response, next: NextFunction) => {
     }
 })
 
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response) => {
     res.status(404).json({ message: "ROUTE NOT FOUND" })
 })
 
